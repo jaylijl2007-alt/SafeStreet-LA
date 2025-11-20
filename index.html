@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Street Safe – Accessibility Hazard System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --accent: #14b8a6;        /* teal */
+      --accent-soft: rgba(20, 184, 166, 0.15);
+      --accent-strong: rgba(20, 184, 166, 0.85);
+      --danger: #f97373;
+      --safe: #22c55e;
+      --text-main: #0f172a;
+      --text-muted: #6b7280;
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --card-border: rgba(148, 163, 184, 0.6);
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.35);
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      /* City sidewalk background with soft dark overlay */
+      background-image:
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)),
+        url("/static/my_sidewalk.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+      color: var(--text-main);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 980px;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(14px);
+      border-radius: 26px;
+      padding: 22px 22px 18px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-main);
+    }
+
+    header h1 span.logo-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #15fa2c, #5a8302);
+      box-shadow: 0 0 12px rgba(248, 250, 252, 0.9);
+    }
+
+    header p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .notice {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(20, 184, 166, 0.6);
+      font-size: 0.92rem;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: #064e3b;
+    }
+
+    .notice-icon {
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+
+    .notice strong {
+      color: #022c22;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 180px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text-main);
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.94rem;
+      transition: all 0.18s ease-out;
+    }
+
+    .action-btn span.icon {
+      font-size: 1.1rem;
+    }
+
+    .action-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .action-btn.active {
+      background: var(--accent-strong);
+      color: #ecfdf5;
+      font-weight: 600;
+      border-color: transparent;
+      box-shadow: 0 12px 28px rgba(20, 184, 166, 0.45);
+    }
+
+    main {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 780px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-soft);
+      display: none;
+    }
+
+    .card.active {
+      display: block;
+    }
+
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 1.15rem;
+      color: var(--text-main);
+    }
+
+    .card p.sub {
+      margin: 0 0 14px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      margin-top: 4px;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      background: rgba(249, 250, 251, 0.9);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.35);
+      background: #ffffff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+    }
+
+    .inline input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    button.primary {
+      margin-top: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent-strong);
+      color: #ecfdf5;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button.primary:hover {
+      background: #0f766e;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.45);
+    }
+
+    button.primary:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 0.86rem;
+      min-height: 1em;
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .status.success {
+      color: var(--safe);
+    }
+
+    .results-list {
+      margin-top: 8px;
+      padding-left: 16px;
+      font-size: 0.86rem;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .results-list li {
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.9);
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .prediction-text {
+      font-size: 0.9rem;
+      margin-top: 10px;
+      color: var(--text-main);
+    }
+
+    .prediction-text strong.high {
+      color: var(--danger);
+    }
+
+    .prediction-text strong.low {
+      color: var(--safe);
+    }
+
+    .side-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+      padding: 16px 16px 14px;
+      box-shadow: var(--shadow-soft);
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .side-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.02rem;
+    }
+
+    .side-card p {
+      margin: 4px 0;
+      color: var(--text-muted);
+    }
+
+    .side-card ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      color: var(--text-muted);
+    }
+
+    .side-card li {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>
+        <span class="logo-dot"></span>
+        Street Safe
+      </h1>
+      <p>
+        Community-powered accessibility reports that help wheelchair users, stroller users,
+        and visually impaired people avoid dangerous or inaccessible places.
+      </p>
+
+      <div class="notice">
+        <div class="notice-icon">🤝</div>
+        <div>
+          <strong>Your input trains our model.</strong><br>
+          When you submit a report, your data is stored <em>anonymously</em> and used to train our AI model.
+          Over time, the model learns patterns about when and where places become inaccessible, so we can
+          warn future users before they arrive and help everyone move through the city more safely.
+        </div>
+      </div>
+
+    <main>
+      <!-- Left: dynamic cards -->
+      <div>
+        <!-- Report card -->
+        <section id="section-report" class="card active">
+          <h2>Report a Hazard</h2>
+          <p class="sub">
+            Share where accessibility breaks down. Your report immediately helps others and improves the AI’s
+            predictions for this location in the future.
+          </p>
+
+          <form id="form-report">
+            <label>
+              Location name
+              <input type="text" id="location_name" placeholder="Downtown, Union Station, etc." required>
+            </label>
+
+            <label>
+              Hazard type
+              <input type="text" id="hazard_type" placeholder="broken sidewalk, no ramp, blocked entrance..." required>
+            </label>
+
+            <label>
+              Accessibility rating
+              <input
+                type="number"
+                id="accessibility"
+                min="1"
+                max="5"
+                placeholder="1 = not accessible, 5 = very accessible"
+                required
+              >
+            </label>
+
+            <label>
+              User type
+              <select id="user_type">
+                <option value="wheelchair">Wheelchair user</option>
+                <option value="stroller">Stroller user</option>
+                <option value="visually_impaired">Visually impaired / blind</option>
+              </select>
+            </label>
+
+            <div class="inline">
+              <input type="checkbox" id="temporary" checked>
+              <label for="temporary" style="margin:0;">This is a temporary situation (e.g., construction).</label>
+            </div>
+
+            <label>
+              Description (optional)
+              <textarea id="description" placeholder="Describe what makes this location unsafe or inaccessible..."></textarea>
+            </label>
+
+            <button type="submit" class="primary">
+              <span>Submit report</span> <span>➜</span>
+            </button>
+
+            <div id="submit-status" class="status"></div>
+          </form>
+        </section>
+
+        <!-- Recent hazards card -->
+        <section id="section-recent" class="card">
+          <h2>View Recent Hazards</h2>
+          <p class="sub">
+            See what other users have reported at a specific location in the most recent entries.
+          </p>
+
+          <form id="form-recent">
+            <label>
+              Location to check
+              <input type="text" id="check-location" placeholder="Downtown" required>
+            </label>
+
+            <button type="submit" class="primary">
+              <span>Show recent hazards</span> <span>📍</span>
+            </button>
+          </form>
+
+          <div id="hazard-results" class="results-list"></div>
+        </section>
+
+        <!-- Prediction card -->
+        <section id="section-predict" class="card">
+          <h2>AI Prediction</h2>
+          <p class="sub">
+            Our simple AI model looks at past reports to estimate the risk level for this location today.
+          </p>
+
+          <form id="form-predict">
+            <label>
+              Location to predict
+              <input type="text" id="predict-location" placeholder="Fashion Square" required>
+            </label>
+
+            <button type="submit" class="primary">
+              <span>Get prediction</span> <span>🤖</span>
+            </button>
+          </form>
+
+          <div id="prediction" class="prediction-text"></div>
+        </section>
+      </div>
+
+      <!-- Right: explanation card -->
+      <aside class="side-card">
+        <h3>How your reports become predictions</h3>
+        <p>
+          We don’t track names or identities. We only store:
+        </p>
+        <ul>
+          <li>Location name (e.g., “Fashion Square”)</li>
+          <li>Type of hazard and accessibility rating</li>
+          <li>Day of the week and time it was reported</li>
+          <li>User category (wheelchair, stroller, visually impaired)</li>
+        </ul>
+        <p>
+          The AI looks for patterns, such as:
+        </p>
+        <ul>
+          <li>“This spot is often inaccessible on Saturdays.”</li>
+          <li>“Wheelchair users consistently rate this entrance 1/5.”</li>
+        </ul>
+        <p>
+          When the risk is high, we flag the location so future users can choose safer routes
+          and avoid preventable accidents.
+        </p>
+      </aside>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
